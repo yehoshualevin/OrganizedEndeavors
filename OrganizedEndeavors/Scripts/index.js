@@ -18,13 +18,11 @@
         endeavors.forEach(e => {
             let buttonHtml;
             console.log(e.HandledBy);
-            // handled by is 0 even though correct in the database
-            //let hi = function () { console.log("hi") }
-            //hi();
+            
             if (e.HandledBy && e.HandledBy === memberId) {
                 buttonHtml = `<button data-member-id=${e.Id} class='btn btn-success done'>I'm done!</button>`;
-            } else if (e.MemberDoingIt) {
-                buttonHtml = `<button class='btn btn-warning' disabled>${e.MemberDoingIt} is doing this</button>`;
+            } else if (e.Name) {
+                buttonHtml = `<button class='btn btn-warning' disabled>${e.Name} is doing this</button>`;
             } else {
                 buttonHtml = `<button data-member-id=${e.Id} class='btn btn-info doing'>I'm doing this one!</button>`;
             }

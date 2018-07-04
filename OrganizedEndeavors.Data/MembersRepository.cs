@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,10 +22,17 @@ namespace OrganizedEndeavors.Data
             string passwordHash = PasswordHelper.HashPassword(password, salt);
             member.PasswordSalt = salt;
             member.PasswordHash = passwordHash;
-            using (var context = new OrganizedEndeavorsDataContext(_conStr))
+           using (var ctn = new SqlConnection(_conStr))
+           using (var cmd = ctn.CreateCommand())
             {
-                context.Members.InsertOnSubmit(member);
-                context.SubmitChanges();
+                cmd.CommandText = "Insert Into members(name,email,passwordHash,passwordSalt)" +
+                    " values (@name,@email,@passwordHash,@passwordSalt)";
+                cmd.Parameters.AddWithValue("@name", member.Name);
+                cmd.Parameters.AddWithValue("@email", member.Email);
+                cmd.Parameters.AddWithValue("@passwordHash",member.PasswordHash);
+                cmd.Parameters.AddWithValue("@passwordSalt",member.PasswordSalt);
+                ctn.Open();
+                cmd.ExecuteNonQuery();
             }
         }
         public Member LogIn(string email,string password)
@@ -44,10 +52,27 @@ namespace OrganizedEndeavors.Data
         }
         public Member GetByEmail(string email)
         {
-            using (var context = new OrganizedEndeavorsDataContext(_conStr))
+            using (var ctn = new SqlConnection(_conStr))
+            using (var cmd = ctn.CreateCommand())
             {
-                 return context.Members.FirstOrDefault(m => m.Email == email);
+                cmd.CommandText = "select * from members where email = @email";
+                cmd.Parameters.AddWithValue("email", email);
+                ctn.Open();
+                var reader = cmd.ExecuteReader();
+                if(reader.Read())
+                {
+                    Member member = new Member
+                    {
+                        Id = (int)reader["Id"],
+                        Name = (string)reader["Name"],
+                        Email = (string)reader["Email"],
+                        PasswordHash = (string)reader["PasswordHash"],
+                        PasswordSalt = (string)reader["PasswordSalt"]
+                    };
+                    return member;
+                }
+                return null;
             }
-        }
+         }
     }
 }

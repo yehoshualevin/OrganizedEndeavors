@@ -11,21 +11,21 @@ namespace OrganizedEndeavors
     {
         public void NewEndeavor(string endeavor)
         {
-            var endeavorRepo = new EndeavorsRepository1(Properties.Settings.Default.ConStr);
+            var endeavorRepo = new EndeavorsRepository(Properties.Settings.Default.ConStr);
             endeavorRepo.AddEndeavor(endeavor);
             GetAndSendEndeavors1();
         }
 
         private void GetAndSendEndeavors1()
         {
-            var endeavorRepo = new EndeavorsRepository1(Properties.Settings.Default.ConStr);
+            var endeavorRepo = new EndeavorsRepository(Properties.Settings.Default.ConStr);
             var endeavors = endeavorRepo.GetIncompleteEndeavors();
-            Clients.All.renderEndeavors(endeavors.Select(e => new
+            Clients.All.renderEndeavors(endeavors.Select(e => new Endeavor
             {
                 Id = e.Id,
                 Endeavor1 = e.Endeavor1,
                 HandledBy = e.HandledBy,
-                MemberDoingIt = e.Member != null ? e.Member.Name : null,
+                Name = e.Name != null ? e.Name : null,
             }));
         }
 
@@ -38,14 +38,14 @@ namespace OrganizedEndeavors
         {
             var memberRepo = new MembersRepository(Properties.Settings.Default.ConStr);
             var member = memberRepo.GetByEmail(Context.User.Identity.Name);
-            var endeavorRepo = new EndeavorsRepository1(Properties.Settings.Default.ConStr);
+            var endeavorRepo = new EndeavorsRepository(Properties.Settings.Default.ConStr);
             endeavorRepo.SetDoing(endeavorId, member.Id);
             GetAndSendEndeavors1();
         }
 
         public void SetDone(int endeavorId)
         {
-            var endeavorRepo = new EndeavorsRepository1(Properties.Settings.Default.ConStr);
+            var endeavorRepo = new EndeavorsRepository(Properties.Settings.Default.ConStr);
             endeavorRepo.SetCompleted(endeavorId);
             GetAndSendEndeavors1();
         }
